@@ -1139,19 +1139,6 @@ a:hover{
 	background: white;
 }
 
-#seasons,
-#showcase
-{
-	position: absolute;
-	width: 100vw;
-	height: 100vh;
-}
-
-#showcase{
-	position: relative;
-	overflow: hidden;
-}
-
 .view-dashboard #dashboard{
 	transform: translateY( 0 );
 	transition: transform 0.5s ease-out, opacity 0.5s ease-out;
@@ -1444,7 +1431,7 @@ body.view-dashboard,
 
 .diary .entry-date{
 	flex: 0 0 auto;
-	padding-bottom: var(--space-s);
+	height: 126px;
 }
 
 .diary .box-content .entry-image{
@@ -1550,25 +1537,26 @@ body.view-dashboard,
 # Showcase
 ---------------------------------------------------------------*/
 
-#showcase .entry-media{
+#showcase{
+	position: relative;
+	width: 100%;
+	height: auto;
+	min-height: 100vh;
+}
+
+#showcase .itm-showcase{
 	position: absolute;
 	opacity: 0;
 	width: 100%;
-	height: 100%;
-	overflow: hidden;
+	max-width: 50vw;
+	top: 0;
 }
 
 
 #showcase .container-circle{
 	display: block;
-	position: absolute;
+	position: absolute; 
 	width: 100%;
-	height: 100%;
-	overflow: hidden;
-}
-
-.view-showcase #showcase .container-circle{
-	overflow: hidden scroll;
 }
 
 #showcase .container-circle,
@@ -1601,53 +1589,53 @@ body.view-dashboard,
 # Seasons
 ---------------------------------------------------------------*/
 
-#seasons{
+#showcase .season-entry{
+}
+
+#showcase .season-container{
 	display: grid;
-	grid-template-rows: 10% 90%;
-	grid-template-areas: "header"
-						 "season-entry";
-	position: relative;
+	grid-template-rows: 10vh 90vh;
+	grid-template-areas: "season-header"
+						 "season-body";
+	position: sticky;
 	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	width: 100vw;
+	width: 100vw; 
 	height: 100vh;
-	overflow: scroll hidden;
+	background: white;
+	overflow: hidden;
 }
 
-.season-header{
-	grid-area: header;
+#showcase .season-container .season-header{
+	grid-area: season-header;
 }
 
-.season-entry{
+#showcase .season-container .season-body{
 	display: flex;
-	position: relative;
-	width: 100%;
-	align-content: flex-start;
-	align-items: start;
-	justify-content: flex-start;
-	flex-wrap: nowrap;	
-	overflow: scroll hidden;
-	grid-area: season-entry;
-	margin-bottom: var(--space-xs);
+	position: absolute; 
+	grid-area: season-body;
+	height: 100%;
+	padding-bottom: var(--space-xs);
 }
 
-.entry-media{
-	display: flex;
+#showcase .season-entry .entry-media{
+	display: inline-flex;
 	height: 100%;
 	margin: 0 calc( var(--space-xs) / 2 );
 }
 
-.entry-media:first-of-type{
+#showcase .season-entry .entry-media:last-of-type{
+	margin-right: 0;
+}
+
+#showcase .season-entry .entry-media:first-of-type{
 	margin-left: var(--space-xs);
 }
 
-.entry-media:last-of-type{
+#showcase .season-entry .entry-media:last-of-type{
 	padding-right: var(--space-xs);
 }
 
-.entry-media.itm-mov{
+#showcase .season-entry .entry-media.itm-mov{
 	margin: unset;
 }
 
@@ -1658,7 +1646,7 @@ body.view-dashboard,
 	height: 100%;
 }
 
-#seasons .entry-media img{
+#showcase .season-entry .entry-media img{
 	max-width: unset;
 }
 
@@ -1760,7 +1748,7 @@ body:not(.player-playing) .ui-player.play,
 	align-items: center;
 	justify-content: left;
 }
-
+16
 .ui-panel.expanded .progress-bar:hover{
 	cursor: default;
 }
@@ -1829,6 +1817,7 @@ body:not(.player-playing) .ui-player.play,
 	
 	#dashboard{
 		display: block;
+		overflow: scroll;
 	}
 	
 	.dash{
@@ -1850,6 +1839,10 @@ body:not(.player-playing) .ui-player.play,
 	
 	.dash:hover{
 		cursor: pointer;
+	}
+	
+	.dash:last-of-type{
+		margin-bottom: 20vh;
 	}
 	
 	.dash-expanded{

@@ -17,12 +17,12 @@
  * su_custom_head() 					 | Add meta tags to the head  
  * su_get_stores() 						 | Get custom field values: stores
  * su_get_images() 						 | Get custom field values: file list images  
- * su_get_player_markup() 				 | Returns the markup of the player
+ * su_get_player_markup() 				 | Returns the markup of the player 
+ * sf_loadmore_ajax_handler() 			 | Ajax handler for loading more posts via ajax call
  *
  * 
  * 
  *  
- * su_hide_editor() 					 | Hide editor for specific pages/posts 
  */
 
 if ( ! defined( '_S_VERSION' ) ) {
@@ -170,13 +170,34 @@ function susuri_scripts() {
 	// vimeo player api
 	wp_enqueue_script( 'player-js', 'https://player.vimeo.com/api/player.js', array(), _S_VERSION, true );
 	
+	// scroll magic bundle
+/*	
+	wp_enqueue_script( 'scroll-magic-js', get_template_directory_uri() . '/js/ScrollMagic.min.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'tween-max-js', get_template_directory_uri() . '/js/TweenMax.min.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'animation-gsap-js', get_template_directory_uri() . '/js/animation.gsap.js', array(), _S_VERSION, true );
+	wp_enqueue_script( 'scroll-magic-indicators-js', 'https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.3/plugins/debug.addIndicators.js', array(), _S_VERSION, true ); // for debugging only	
+*/	
+	
 	// Parameters for JS
 	$su_params = array(
 		'movie_url' => get_post_meta( su_get_ID_by_slug( 'dashboard' ), 'su_movie_oembed', true )
 	);	
-	
 	wp_enqueue_script( 'su-scripts', get_template_directory_uri() . '/js/su-scripts.js', array( 'jquery' ), _S_VERSION, true );
 	wp_localize_script( 'su-scripts', 'su_params', $su_params );
+	
+	
+	// SF Loadmore
+	global $wp_query; 
+	// Parameters for JS
+	$sf_loadmore_params = array(
+			'ajax_url'	   => admin_url( 'admin-ajax.php' ), 
+			'posts'		   => json_encode( $wp_query->query_vars ), // everything about your loop is here
+			'current_page' => get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1,
+			'max_page'     => $wp_query->max_num_pages,
+			'container'    => '#showcase'
+	);			
+	wp_enqueue_script( 'sf-loadmore-js', get_template_directory_uri() . '/js/sf-loadmore.js', array( 'jquery' ), true );
+	wp_localize_script( 'sf-loadmore-js', 'sf_loadmore_params', $sf_loadmore_params );
 	
 }
 add_action( 'wp_enqueue_scripts', 'susuri_scripts' );
@@ -252,11 +273,11 @@ function su_get_ID_by_slug( $page ) {
  */
 function su_modify_wp_query( $query ) {
 
-	if( $query->is_main_query() && is_home() ){	
+	if( $query->is_main_query() && $query->is_home() ){	
 		
 		// VARS
 		$post_types = array( 'season', 'diary' );
-		$meta_query = ( is_array( $query->get( 'meta_query' ) ) ) ? $query->get( 'meta_query' ) : []; //Get original meta query before adding additional arguments 
+		$meta_query = ( is_array( $query->get( 'meta_query' ) ) ) ? $query->get( 'meta_query' ) : []; //Get original meta query before adding additional arguments
 		
 		// QUERY SET
 		$query->set( 'meta_query', $meta_query ); //Add our meta query to the original meta queries
@@ -266,6 +287,8 @@ function su_modify_wp_query( $query ) {
 		$query->set( 'order', 'desc' );
 		
 	}
+	
+	return $query;
 }
 add_action( 'pre_get_posts', 'su_modify_wp_query' );
 
@@ -325,7 +348,7 @@ function su_custom_head() {
 			h=d.documentElement,t=setTimeout(function(){h.className=h.className.replace(/\bwf-loading\b/g,\"\")+\" wf-inactive\";},config.scriptTimeout),tk=d.createElement(\"script\"),f=false,s=d.getElementsByTagName(\"script\")[0],a;h.className+=\" wf-loading\";tk.src='https://use.typekit.net/'+config.kitId+'.js';tk.async=true;tk.onload=tk.onreadystatechange=function(){a=this.readyState;if(f||a&&a!=\"complete\"&&a!=\"loaded\")return;f=true;clearTimeout(t);try{Typekit.load(config)}catch(e){}};s.parentNode.insertBefore(tk,s)
 		  })(document);
 		</script>
-	";	
+	";
 	
 }
 add_action( 'wp_head', 'su_custom_head' );
@@ -371,24 +394,28 @@ function su_get_stores( $post_id ) {
 /** SF:
  * Get custom field values: file list images  
  */
-function su_get_images( $meta_key, $img_size = '' ){
+function su_get_images( $meta_key, $class = '', $img_size = '' ){
 	
 	// VARS
 	$data = '';
 	$images = array();
+	$class = !empty( $class ) ? ' ' . $class : '' ;
 	
 	// GET FIELD
 	$files = get_post_meta( get_the_ID(), $meta_key, 1 );
 
 	// LOOP
-	foreach ( (array) $files as $attachment_id => $attachment_url ) {
-		$img = wp_get_attachment_image( $attachment_id, $img_size );
-		$img_src = wp_get_attachment_image_src( $attachment_id );
-		$orientation = ( $img_src[ 1 ] <= $img_src[ 2 ] ) ? 'portrait' : 'landscape'; // 1->width, 2->height
-		$images[] = '<div class="entry-media itm-img ' . $orientation . '">' . $img . '</div>';
-	}	
 	
-	$data = implode( '', $images );
+	if( !empty( $files ) ){	
+		foreach ( (array) $files as $attachment_id => $attachment_url ) {
+			$img = wp_get_attachment_image( $attachment_id, $img_size );
+			$img_src = wp_get_attachment_image_src( $attachment_id );
+			$orientation = ( $img_src[ 1 ] <= $img_src[ 2 ] ) ? 'portrait' : 'landscape'; // 1->width, 2->height
+			$images[] = '<div class="entry-media itm-img ' . $orientation . $class . '">' . $img . '</div>';
+		}	
+
+		$data = implode( '', $images );
+	}	
 	
 	return $data;
 }
@@ -458,21 +485,51 @@ function su_get_player_markup() {
 
 
 /** SF:
- * Customize the post type support for specific pages/posts
+ * Ajax handler for loading more posts via ajax call
  */
-/*
-function su_hide_editor() {
+function sf_loadmore_ajax_handler() {
 	
-	$post_id = $_GET[ 'post' ] ? $_GET[ 'post' ] : $_POST[ 'post_ID' ];
+	// prepare our arguments for the query
+//	$args = json_decode( stripslashes( $_POST[ 'query' ] ), true );
+	$args[ 'paged' ] = ( isset( $_POST[ 'page' ] ) ) ? $_POST[ 'page' ] + 1 : ''; // we need next page to be loaded
+	$args[ 'posts_per_page' ] = 1;
+	$args[ 'post_status' ] = 'publish';
+	$args[ 'post_type' ] = array ( 'season' );
+
+	$custom_query = new WP_Query( $args );
+
+		if( $custom_query->have_posts() ) :
+
+			// run the loop
+			while( $custom_query->have_posts() ) : 
 	
-	if( !isset( $post_id ) ) return;
+				$custom_query->the_post();
+				get_template_part( 'template-parts/content', get_post_type() );
+
+			endwhile;
+			wp_reset_postdata();
 	
-	$pagetitle = get_the_title( $post_id );
+		endif;
 	
-	if( $pagetitle == 'Movie' ){
-		remove_post_type_support( 'page', 'editor' );
-	}
+		if ( wp_doing_ajax() ) :
+			die; // exit script
+		endif;
+	
 }
-add_action( 'admin_init', 'su_hide_editor' );
-*/
+add_action( 'wp_ajax_loadmore', 'sf_loadmore_ajax_handler' ); // priv
+add_action( 'wp_ajax_nopriv_loadmore', 'sf_loadmore_ajax_handler' ); // no priv
+
+
+
+
+
+
+/* for debuging */
+function debug_to_console( $data ) {
+    $output = $data;
+    if (is_array($output))
+        $output = implode(',', $output);
+
+    echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
+}
 
