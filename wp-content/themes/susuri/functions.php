@@ -19,8 +19,7 @@
  * su_get_images() 						 | Get custom field values: file list images  
  * su_get_player_markup() 				 | Returns the markup of the player 
  * sf_loadmore_ajax_handler() 			 | Ajax handler for loading more posts via ajax call
- *
- * 
+ * su_custom_img_sizes()				 | adding custom image sizes 
  * 
  *  
  */
@@ -170,21 +169,12 @@ function susuri_scripts() {
 	// vimeo player api
 	wp_enqueue_script( 'player-js', 'https://player.vimeo.com/api/player.js', array(), _S_VERSION, true );
 	
-	// scroll magic bundle
-/*	
-	wp_enqueue_script( 'scroll-magic-js', get_template_directory_uri() . '/js/ScrollMagic.min.js', array(), _S_VERSION, true );
-	wp_enqueue_script( 'tween-max-js', get_template_directory_uri() . '/js/TweenMax.min.js', array(), _S_VERSION, true );
-	wp_enqueue_script( 'animation-gsap-js', get_template_directory_uri() . '/js/animation.gsap.js', array(), _S_VERSION, true );
-	wp_enqueue_script( 'scroll-magic-indicators-js', 'https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.3/plugins/debug.addIndicators.js', array(), _S_VERSION, true ); // for debugging only	
-*/	
-	
 	// Parameters for JS
 	$su_params = array(
 		'movie_url' => get_post_meta( su_get_ID_by_slug( 'dashboard' ), 'su_movie_oembed', true )
 	);	
 	wp_enqueue_script( 'su-scripts', get_template_directory_uri() . '/js/su-scripts.js', array( 'jquery' ), _S_VERSION, true );
 	wp_localize_script( 'su-scripts', 'su_params', $su_params );
-	
 	
 	// SF Loadmore
 	global $wp_query; 
@@ -196,7 +186,7 @@ function susuri_scripts() {
 			'max_page'     => $wp_query->max_num_pages,
 			'container'    => '#showcase'
 	);			
-	wp_enqueue_script( 'sf-loadmore-js', get_template_directory_uri() . '/js/sf-loadmore.js', array( 'jquery' ), true );
+	wp_enqueue_script( 'sf-loadmore-js', get_template_directory_uri() . '/js/sf-loadmore.js', array( 'jquery' ), _S_VERSION, true );
 	wp_localize_script( 'sf-loadmore-js', 'sf_loadmore_params', $sf_loadmore_params );
 	
 }
@@ -405,7 +395,6 @@ function su_get_images( $meta_key, $class = '', $img_size = '' ){
 	$files = get_post_meta( get_the_ID(), $meta_key, 1 );
 
 	// LOOP
-	
 	if( !empty( $files ) ){	
 		foreach ( (array) $files as $attachment_id => $attachment_url ) {
 			$img = wp_get_attachment_image( $attachment_id, $img_size );
@@ -491,11 +480,21 @@ function sf_loadmore_ajax_handler() {
 	
 	// prepare our arguments for the query
 //	$args = json_decode( stripslashes( $_POST[ 'query' ] ), true );
-	$args[ 'paged' ] = ( isset( $_POST[ 'page' ] ) ) ? $_POST[ 'page' ] + 1 : ''; // we need next page to be loaded
+	
+	// ARGS
+	if( isset( $_POST[ 'p' ] ) && ! empty( $_POST[ 'p' ] ) ){	
+		// selective post query
+		$args[ 'p' ] = ( isset( $_POST[ 'p' ] ) ) ? $_POST[ 'p' ] : ''; 
+	}
+	else{
+		// query next page
+		$args[ 'paged' ] = ( isset( $_POST[ 'page' ] ) ) ? $_POST[ 'page' ] + 1 : '';	
+	}
 	$args[ 'posts_per_page' ] = 1;
 	$args[ 'post_status' ] = 'publish';
 	$args[ 'post_type' ] = array ( 'season' );
-
+	
+	// CUSTOM QUERY
 	$custom_query = new WP_Query( $args );
 
 		if( $custom_query->have_posts() ) :
@@ -521,15 +520,11 @@ add_action( 'wp_ajax_nopriv_loadmore', 'sf_loadmore_ajax_handler' ); // no priv
 
 
 
-
-
-
-/* for debuging */
-function debug_to_console( $data ) {
-    $output = $data;
-    if (is_array($output))
-        $output = implode(',', $output);
-
-    echo "<script>console.log('Debug Objects: " . $output . "' );</script>";
+/** SF:
+ * adding custom image sizes
+ */
+function su_custom_img_sizes() {	
+	add_image_size( 'su-extra-large', 1700, 1700 );
+	add_image_size( 'su-super-large', 3000, 3000 );
 }
-
+add_action( 'after_setup_theme', 'su_custom_img_sizes' );

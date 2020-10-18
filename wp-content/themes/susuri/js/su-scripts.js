@@ -1,6 +1,6 @@
 /**
  * File su-scripts.js
- * 
+ * Author: Sebastian Fehr
  *
  * 
  * ON READY 							 | Callback on initial load
@@ -11,12 +11,14 @@
  * sf_showcase_scroll() 			 	 | Handles the scroll event for the showcase section 
  * sf_viwport_handler() 			 	 | adds/removes css classes to the body depending which page section is in viewport 
  * isInViewport()						 | Determines weather a element is in viewport or not
+ * sf_intersection_observer() 			 | Handles page sections which are in the viewport
  * sf_video_player()					 | Functions for the video player
  * sf_intl_numbers()					 | Converts numbers into a specifyed international format
  * sf_horizontal_scroll()				 | Handles the vertical scroll momentum and translate it into a horizontal scroll
- *
- *
- *
+ * sf_season_navigation()				 | Handles the events for the season navigation
+ * sf_intersection_observer()			 | Handles page sections which are in the viewport
+ * sf_sort_seasons()					 | Sorts the season articles according to the menu order
+ * sf_get_scroll_direction()   			 | Adds evelnt listener to an element to check on scroll direction
  *  
  * 
  *
@@ -26,9 +28,14 @@
 
 
 
-// Todo:
-// replace with and height attribute with data-ratio setting in php.
+// OBJECTS
+var su_menuItems = {};
 
+// VARS
+var su_sectionIndex = {
+	'index'     : 0,
+	'direction' : '',
+};
 
 
 
@@ -42,13 +49,14 @@ jQuery( document ).ready(
 	sf_horizontal_image_slide(),
 	sf_display_diary_image(),
 	sf_showcase_scroll(),
-//	sf_viwport_handler(),
+	sf_intersection_observer(),
 	sf_video_player(),
 	sf_mobile_menu(),
 	sf_intl_numbers( 'zh-Hans-CN-u-nu-hanidec' ),
-	sf_horizontal_scroll()
-	
-//	sf_horizontal_image_scroll()
+	sf_horizontal_scroll(),
+	sf_season_navigation(),
+	sf_sort_seasons(),
+	sf_get_scroll_direction( '#showcase .container-circle' )
 );
 
 
@@ -59,9 +67,10 @@ jQuery( document ).ready(
  *
  */
 jQuery( document ).ajaxSuccess( function() {
-	console.log( 'ajax success' );
 	sf_horizontal_image_slide();
 	sf_horizontal_scroll();
+	sf_intersection_observer();
+	sf_sort_seasons();
 });
 
 
@@ -82,7 +91,7 @@ window.onresize = function() {
 		sf_horizontal_image_slide();
 		sf_horizontal_scroll();
 		sf_mobile_menu();
-	}, 100);
+	}, 100 );
 };
 
 
@@ -173,7 +182,7 @@ function sf_showcase_scroll(){
 	var container = jQuery( '.container-circle' );
 	var container_w = container.innerWidth();
 	var container_h = container.innerHeight();
-	var circle =  jQuery( '<div>', { 
+	var circle = jQuery( '<div>', { 
 		class: 'circle'
 	});
 	var cycle = Number( container.width() * 2 );
@@ -210,29 +219,40 @@ function sf_showcase_scroll(){
 		
 		// creating the objects
 		media[ index ] = new EntryMedia( img_src, type, orientation );
-		
-		// set image and orientation for initial load
-		container.css( 'background-image', 'url(' + media[ cycle_position ].img_src + ')' );
-		container.addClass( media[ cycle_position ].orientation );
+	
 	});
-
+	
+	// update cycle position in case the scroll position of the initial load is not at the top, max value media.length
+	var mediaLengh = ( Object.keys( media ).length - 1 );
+	var currentCycle = Number( Math.floor( container.scrollTop() / cycle ) );
+	cycle_position = currentCycle < mediaLengh ? currentCycle : mediaLengh;
+	
+	// set image and orientation for initial load
+	container.css( 'background-image', 'url(' + media[ cycle_position ].img_src + ')' );
+	container.addClass( media[ cycle_position ].orientation );
 	
 	// Scroll Event
-	jQuery( document ).on( 'scroll', function(){
+	container.on( 'scroll', function(){ // depending on the position property value the event should listen to document
 		
 		// update units (in case of resize window)
 		var circle_w = ( jQuery( '.circle' ).innerWidth() + 2 ); // +2 correction value (border thicknes ?)
 		cycle = Number( circle_w * 2 );
 		var new_position = Number( Math.floor( jQuery( this ).scrollTop() / cycle ) );
 		
-		// check if the end of the container/scene has been reached		
-		var scroll_pos = ( jQuery( '.circle' ).length * circle_w ) - jQuery( this ).scrollTop() - jQuery( window ).height() ;		
-		if( scroll_pos <= 0 ){
+		// check if the end of the container/scene has been reached and avoid negative scrollTop (safari bounce)
+//		var scroll_pos = ( jQuery( '.circle' ).length * circle_w ) - jQuery( this ).scrollTop() - jQuery( window ).height();
+		var scroll_pos = ( jQuery( '.circle' ).length * circle_w ) - jQuery( this ).scrollTop();
+		if( ( scroll_pos <= 0 ) || ( jQuery( this ).scrollTop() < 0 ) ){
+			console.log( 'out' );
+			jQuery( container ).css( 'background-image', 'none' ); // hide background: safai and mobile overscroll fix. avoid image on image
 			return; // early escape
+		}
+		else{
+			container.css( 'background-image', 'url(' + media[ cycle_position ].img_src + ')' ); // add background image again when scroll up to showcase section
 		}
 		
 		// when cycle/section is changed
-		if( cycle_position != new_position ){
+		if( cycle_position !== new_position ){
 			
 			// update position
 			cycle_position = new_position;
@@ -241,7 +261,7 @@ function sf_showcase_scroll(){
 			container.css( 'background-image', 'url(' + media[ cycle_position ].img_src + ')' );
 			
 			// add class when a movie item is displayed
-			if( media[ cycle_position ].type == 'movie' ){
+			if( media[ cycle_position ].type === 'movie' ){
 				container.parent( '#showcase' ).addClass( 'view-mov' );
 			}
 			else{
@@ -249,76 +269,15 @@ function sf_showcase_scroll(){
 			}
 			
 			// check the orientation of the background image
-			if( media[ cycle_position ].orientation == 'portrait' ){
+			if( media[ cycle_position ].orientation === 'portrait' ){
 				container.addClass( 'portrait' );
 			}
 			else{
 				container.removeClass( 'portrait' );
 			}
-		}	
-		
+		}		
 	});
 }
-
-
-
-/* VIEWPORT HANDLER
- *
- * adds/removes css classes to the body depending which page section is in viewport 
- *
- */
-/*
-function sf_viwport_handler(){
-	
-	// set initial class
-	jQuery( 'body' ).addClass( 'view-showcase' );
-	
-	var box = document.querySelector( '#showcase' );
-	
-	document.addEventListener( 'scroll', function() {
-		
-		if( isInViewport( box ) ){
-			jQuery( 'body' ).addClass( 'view-showcase' );
-		}
-		else{
-			jQuery( 'body' ).removeClass( 'view-showcase' );
-		}
-
-	}, {
-		passive: true
-	});
-}
-*/
-
-
-/* IS IN VIEWPORT
- *
- * Determines weather a element is in viewport or not
- *
- */
-/*
-function isInViewport( el ) {
-	
-	var offset_y = 0;
-	// check for touch device
-	var is_coarse = matchMedia( '(pointer:coarse)' ).matches;
-	
-	if( is_coarse ){
-		// a little offset for mobile devices
-		offset_y = 40;
-	}
-	
-    const rect = el.getBoundingClientRect();
-
-    return (
-		rect.top >= ( 0 - offset_y ) &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-
-    );
-}
-*/
 
 
 
@@ -446,7 +405,6 @@ function sf_video_player() {
 				newLeft = rightEdge;
 			}
 		
-//			thumb.style.left = newLeft + 'px';
 			let pos_precentage = ( ( 100 * newLeft ) / slider.offsetWidth ).toFixed( 2 ); // in percentage
 			thumb.style.left = pos_precentage + '%';
 			thumb.classList.add( 'dragging' );
@@ -483,18 +441,15 @@ function sf_mobile_menu() {
 	if( jQuery( window ).width() <= 850 ){
 		
 		// add class to body
-//		jQuery( 'body' ).addClass( 'view-mobile' );
 		// add 'dash-expanded' for menu handling on viewport size 850px
 		dash.on( 'click', function(){
 			dash.removeClass( 'dash-expanded' );
-//			dash.not( jQuery( this ) ).removeClass( 'dash-expanded' );
 			jQuery( this ).toggleClass( 'dash-expanded' );			
 		});	
 	}
 	else{
 		// remove 'dash-expanded' class in case window size increases
 		dash.removeClass( 'dash-expanded' );
-//		jQuery( 'body' ).removeClass( 'view-mobile' );
 	}
 	
 }
@@ -540,94 +495,264 @@ function sf_horizontal_scroll(){
 	var vw = window.innerWidth;
 	var vh = window.innerHeight;
 	var containerAll = jQuery( '#showcase .season-entry' );
+	var scrollThreshhold = 0.75;
 	
 	containerAll.each( function( index, container ){
 		
 		var target = jQuery( container ).find( '.season-container' );
 		var wrapper = jQuery( container ).find( '.season-body' );
-		var containerHeight = wrapper.width();
+		var containerHeight = ( wrapper.width() - vw + vh );
+//		var containerHeight = ( wrapper.width() >= vw ) ? ( wrapper.width() - vw + vh ) : vw;
 
 		// adjust height of the sticky container to have enough scroll space
 		jQuery( container ).height( containerHeight );
 
-		// define the verticl dimension of the container and allow scrolling only inside its range
-		var offsetTop = jQuery( container ).offset().top;
-		var offsetbottom = ( offsetTop + containerHeight );
+		jQuery( '#showcase .container-circle' ).on( 'scroll', function(){ // depending on the position property the event should listen to document
+			
+			// define the verticl dimension of the container and allow scrolling only inside its range
+			var offsetTop = jQuery( container ).offset().top;
 
-		jQuery( document ).on( 'scroll', function(){
-
-			var scrollTop = jQuery( this ).scrollTop();
-			var rangeTop = scrollTop - offsetTop;
-			var rangeBottom = scrollTop - offsetbottom;
-
-			if( ( rangeTop >= 0 ) && ( rangeBottom <= 0 ) ){
+			if( ( offsetTop <= 0 ) ){
+				
+				// convert to positive number
+				offsetTop = Math.abs( offsetTop ); 
 				// scroll left
-				target.scrollLeft( rangeTop );
+				target.scrollLeft( offsetTop );
+				// scroll progress
+				var scrollProgress = ( offsetTop / ( containerHeight - ( vh / 1 ) ) ).toFixed( 2 ); // value in %
+				var tweenProgress = 0;
+				
+				// TWEEN (inside)
+				if( ( scrollProgress >= 1 ) && ( offsetTop <= containerHeight ) ){
+					
+					su_sectionIndex.tween = 'on';
+					tweenProgress = ( ( 1 * ( offsetTop - containerHeight + vh ) ) / ( vh ) ).toFixed( 2 );
+					
+					// prev
+					jQuery( '.season-title .ui-link-season' ).eq( index ).css({
+						'display'  : 'grid',
+						'opacity'  : ( 1 - tweenProgress ),
+						'top'      : ( ( ( -20 ) * tweenProgress ) / 1 ) + 'px'
+					})
+					
+					// next
+					jQuery( '.season-title .ui-link-season' ).eq( index + 1 ).css({
+						'display'  : 'grid',
+						'opacity'  : tweenProgress,
+						'top'      : ( ( ( 20 ) * ( 1 - tweenProgress ) ) / 1 ) + 'px'
+					})
+				}
+				
+				// TWEEN (outside)
+				else{
+					// hide inactive links
+					jQuery( '.season-title .ui-link-season' ).css({
+						'display'  : 'none',
+						'opacity'  : 0,
+						'top'      : 0,
+					});
+					
+					// show current link outside of the tween
+					jQuery( '.season-title .ui-link-season' ).eq( su_sectionIndex.index ).css({
+						'display'  : 'grid',
+						'opacity'  : 1,
+						'top'      : 0,
+					});
+				}
 			}
 			else{
-				target.scrollLeft( 0 ); // reset the scroll position back properly
+				// reset the scroll position back properly
+				target.scrollLeft( 0 ); 
 			}
-		});		
+		});
+	});
+}
+
+
+
+/* SEASON NAVIGATION
+ *
+ * Handles the events for the season navigation
+ *
+ */ 
+function sf_season_navigation(){
+	
+	// INITIAL LOAD
+	
+	// initialize season title
+	var seasonTitle = jQuery( '.season-title' ); // initial site title
+	var seasonLinks = jQuery( '#dashboard .seasons article .ui-link-season' ).clone();
+	
+	seasonLinks.each( function( ind, ele ){
+		jQuery( ele ).attr( 'href', '#' );
+		jQuery( ele ).attr( 'data-order', ind );
+	});
+	
+	// hide all links except first one
+	seasonLinks.css( 'position', 'absolute' );
+	seasonLinks.not( ':eq( 0 )' ).css( 'opacity', 0 );
+	seasonLinks.not( ':eq( 0 )' ).hide();
+	
+	// add seasnon links into season title
+	seasonTitle.html( seasonLinks );
+	
+	// Object Constructor
+	function MenuItem( id, order ,link ) {
 		
+		this.id = id;
+		this.order = order;
+		this.link = link;
+
+	}	
+	
+	// indexing the objects
+	jQuery( '#dashboard .seasons .box-content article' ).each( function( ind, el ){
+		
+		// get values
+		var menu_link = jQuery( el ).find( 'a' );
+		var menu_id = menu_link.attr( 'href' ).replace( '#', '' );
+		var menu_order = ind;
+		
+		// create object
+		su_menuItems[ ind ] = new MenuItem( menu_id, menu_order, menu_link );
 	});
+	
+	// CLICK EVENTS
+	jQuery( '.seasons .ui-link-season' ).on( 'click', function( e ) { 
+		
+		e.preventDefault(); 
+		// get the destination
+		var dest = jQuery( this ).attr( 'href' );
+		
+		// check if element is loaded already		
+		if( jQuery( dest ).length ){
+			
+			// scroll to anchor		
+			jQuery( dest )[ 0 ].scrollIntoView( 
+				{ // options currently only supported at firefox
+					behavior: 'smooth',
+					block:    'start',
+				}
+			);	
+		}
+		else{
+			// ajax call, only if there are posts left to call
+			sf_loadmore_ajaxcall( dest );
+		}
+	});
+	
 }
 
 
-/* HORIZONTAL SCROLL WITH TWEEN AND SCROLL MAGIC
- *
- * Calculates the iamge with base on the image-ratio
- *
- */
-/*
-function sf_horizontal_image_scroll(){
-	
-	// VARS
-	var container = jQuery( '#showcase .container-circle .season-container' );
-	var target = jQuery( '.season-container' );
-	var wrapper = jQuery( '.season-body' );
-	
-	// UNITS
-	const vw = window.innerWidth;
-	const vh = window.innerHeight;
-	const distance = wrapper.width() - target.width();
-	const containerHeight = wrapper.width() - vw + vh;
-	
-	console.log( vw );
-	console.log( vh );
-	console.log( distance );
-	console.log( containerHeight );
-	console.log( 'top offset: ' );
-	console.log( jQuery( '#showcase .season-entry' ).offset().top );
-	
-	container.css( 'border', '5px solid blue' );
-	target.css( 'border', '5px solid red' );
-	wrapper.css( 'border', '5px solid green' );
-	
-	// PREPARATIONS
-	container.height( containerHeight );
-	
-	// CONTROLER
-	var controller = new ScrollMagic.Controller();
 
-	// TWEEN
-	var tween = new TweenMax.to( wrapper, 1.5, { // duration 1.5 will be overwritten by the scene duration
-    	css: {
-			x: ( distance * -1 )
-		}, 
-		ease: Linear.easeNone
+/* INTERSECTION OBSERVER
+ *
+ * Handles page sections which are in the viewport
+ *
+ */ 
+function sf_intersection_observer(){
+		
+	let sections = document.querySelectorAll( '#showcase article' );
+	let vh = window.innerHeight;
+	let sectionIndexOld = 0;
+	let sectionIndexNew = 0;
+	
+	// Intersection Handler
+	function handleIntersection( entries, observer ) {
+
+		entries.map( ( entry ) => {
+			
+			// INTERSECTING CHECK 
+			if ( entry.isIntersecting && ( entry.intersectionRect.height >= ( vh / 2 ) ) ){ // make sure that half of the viewport height is passed
+				
+				// get active element
+				sectionIndexNew = Number( jQuery( entry.target ).attr( 'data-order' ) );
+				
+				// call the function only on a new section index
+				if( sectionIndexNew !== sectionIndexOld ){
+					su_sectionIndex.index = sectionIndexNew;
+				}
+			}
+			
+			sectionIndexOld = sectionIndexNew; // update sectionIndexOld
+		});
+	}
+	
+	// STEPS ARRAY
+	function buildThresholdList() { // Building the array of threshold ratios
+		
+		let thresholds = [];
+		let numSteps = 100;
+
+		for( let i = 1.0; i <= numSteps; i++ ) {
+			let ratio = i / numSteps;
+			thresholds.push( ratio );
+		}
+
+		thresholds.push( 0 );
+		return thresholds;
+	}	
+	
+	// OPTIONS
+	let options = {
+		root: document.querySelector( '#showcase .container-circle' ),
+//		rootMargin: '-5% 0% -5% 0%',
+		threshold: buildThresholdList()
+	};		
+
+	// INIT
+	const observer = new IntersectionObserver( handleIntersection, options );
+	sections.forEach( section => observer.observe( section ) );
+}
+
+
+
+/* SORT SEASONS
+ *
+ * Sorts the season articles according to the menu order
+ *
+ */ 
+function sf_sort_seasons(){
+	
+	var articles = jQuery( '#showcase .season-entry' );
+	
+	// get data-order
+	articles.each( function( ind, ele ){
+		var id = jQuery( this ).attr( 'id' );
+		var order = jQuery( '#dashboard .seasons .' + id ).index();
+		jQuery( ele ).attr( 'data-order', order );
 	});
 	
-	// SCENE
-	var scene = new ScrollMagic.Scene( {
-		triggerElement: '#showcase .container-circle .season-container',
-//		triggerElement: '#showcase .container-circle',
-		duration: distance, 
-		offset: ( vh / 2 ), 
-//		offset: jQuery(container).offset().top
-	})
-	.setPin( '#showcase .container-circle .season-container' )
-	.setTween( tween )
-	.addIndicators() // for debugging only
-	.addTo( controller );
+	// sort according data-order
+	articles.sort( function( a, b ) {
+		return a.dataset.order > b.dataset.order ? 1 : ( a.dataset.order < b.dataset.order ? -1 : 0 );
+	}).appendTo( '#showcase .container-circle' );	
+	
 }
-*/
+
+
+
+/* GET SCROLL DIRECTION
+ *
+ * Adds evelnt listener to an element to check on scroll direction
+ *
+ */ 
+function sf_get_scroll_direction( element ){
+
+	var lastScrollTop = jQuery( element ).scrollTop();
+	
+	jQuery( element ).scroll( function( event ){
+		
+		var st = jQuery( this ).scrollTop();
+		if( st > lastScrollTop ){
+			su_sectionIndex.direction = 'down';
+		} 
+		else{
+			su_sectionIndex.direction = 'up';
+		}
+		
+		lastScrollTop = st;
+	});	
+}
+
+

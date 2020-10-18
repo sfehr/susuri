@@ -7,15 +7,21 @@
  * @package susuri
  */
 
-?>
-
-<article id="post-<?php the_ID(); ?>" <?php post_class( 'season-entry' ); ?>>
-	
-	<?php 
+if( in_the_loop() ) :
+	// remove the id attribute in the initial loop
+	?>
+	<article <?php post_class( 'season-entry' ); ?>>
+	<?php
+else :
+	?>
+	<article id="post-<?php the_ID(); ?>" <?php post_class( 'season-entry' ); ?>>
+	<?php		
+endif;	
+		
 	// to check if its initial/main query or custom query
 	if( in_the_loop() ) :
 	?>
-		<a href="#" class="ui-link-season">
+		<a class="ui-link-season" href="#post-<?php the_ID(); ?>">
 			<span class="itm itm-date">
 				<?php the_Date( 'Y' ); ?>
 			</span>

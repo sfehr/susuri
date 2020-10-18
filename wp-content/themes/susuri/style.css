@@ -1042,6 +1042,7 @@ body{
 	color: black;
 }
 
+html::-webkit-scrollbar,
 body::-webkit-scrollbar,
 #dashboard::-webkit-scrollbar,
 #dashboard *::-webkit-scrollbar,
@@ -1053,7 +1054,8 @@ body::-webkit-scrollbar,
 	width: 0;
 }
 
-.body,
+html,
+body,
 .dash,
 .box-content,
 #dashboard,
@@ -1076,6 +1078,10 @@ a:active
 
 a:hover{
 	font-style: italic;
+}
+
+a:focus{
+	outline: transparent;
 }
 
 .site-info{
@@ -1148,7 +1154,7 @@ a:hover{
 body.view-dashboard,
 .view-dashboard #showcase
 {
-	overflow: hidden;
+/*	overflow: hidden; */
 }
 
 /*--------------------------------------------------------------
@@ -1183,16 +1189,17 @@ body.view-dashboard,
                          "news     news     news     stores   stores   stores   stores   stores   diary  diary  diary  diary"
                          "news     news     news     stores   stores   stores   stores   stores   diary  diary  diary  diary";
 	
-/*	width: calc( 100vw - ( var(--space-s) * 2 ) );
-	height: calc( 100vh - ( var(--space-s) * 2 ) ); */
 	width: 100%;
 	height: 100%;
 	padding: var(--space-s);	
 	font-size: var(--font-size-s);
 	font-weight: var(--font-weight);
-	
 	opacity: 0;
-	transform: translateY( -100% );
+	transform: translateY( -100% ) translate3d( 0, 0, 0 ) translateZ( 0 );
+	
+	-webkit-backface-visibility: hidden;
+	-webkit-transform-style: preserve-3d;
+	-webkit-transform: translate3d( 0, 0, 0 ) translateZ( 0 ) translateY( -100% );
 }
 
 .dash{
@@ -1267,6 +1274,12 @@ body.view-dashboard,
 	transform: translateY( 1.5px );
 }
 
+.view-fullscreen .seasons,
+.view-fullscreen .movie
+{
+	transform: unset; /* fullscreen disabeling bug fix */
+}
+
 .seasons .box-title{
 	display: none;
 }
@@ -1281,13 +1294,13 @@ body.view-dashboard,
 	display: grid;
 	grid-template-columns: 35px 45px auto;
 	line-height: 120%;
-	margin-bottom: 8px;
+	margin-bottom: 4px;
 	font-size: var(--font-size-s);
 	font-weight: var(--font-weight);
 }
 
-.seasons article:first-of-type{
-	display: none;
+.ui-link-season{
+	min-width: max-content;
 }
 
 .seasons .ui-link-season{
@@ -1301,6 +1314,10 @@ body.view-dashboard,
 	border-right: 1px solid white;
 	border-left: 1px solid white;
 	text-align: center;
+}
+
+.seasons .itm-season{
+	border-color: black;
 }
 
 .seasons .itm-title{
@@ -1537,9 +1554,18 @@ body.view-dashboard,
 # Showcase
 ---------------------------------------------------------------*/
 
+body,
+#showcase,
+#showcase .container-circle
+{
+	overflow-x: hidden;
+	max-width: 100vw;
+}
+
+
 #showcase{
-	position: relative;
-	width: 100%;
+	position: absolute;
+	width: 100vw;
 	height: auto;
 	min-height: 100vh;
 }
@@ -1548,15 +1574,18 @@ body.view-dashboard,
 	position: absolute;
 	opacity: 0;
 	width: 100%;
-	max-width: 50vw;
 	top: 0;
 }
 
-
 #showcase .container-circle{
 	display: block;
-	position: absolute; 
+	position: absolute;
+/*	position: fixed;  */
 	width: 100%;
+	max-width: 100vw;
+	height: 100%; 
+	overflow: hidden scroll;  
+	box-sizing: border-box;
 }
 
 #showcase .container-circle,
@@ -1579,6 +1608,10 @@ body.view-dashboard,
 	border: solid 1px transparent;
 }
 
+.view-season #showcase .container-circle{
+	background-image: unset !important;
+}
+
 #showcase.view-mov .circle{
 	background-color: rgba(255,255,255,0.05);
 	mix-blend-mode: difference;
@@ -1590,6 +1623,7 @@ body.view-dashboard,
 ---------------------------------------------------------------*/
 
 #showcase .season-entry{
+	min-height: calc( 100vh * 2 );
 }
 
 #showcase .season-container{
@@ -1644,6 +1678,11 @@ body.view-dashboard,
 	object-fit: contain;
 	width: auto;
 	height: 100%;
+}
+
+.itm-showcase img{
+	width: 100%;
+	height: auto;	
 }
 
 #showcase .season-entry .entry-media img{
@@ -1748,7 +1787,7 @@ body:not(.player-playing) .ui-player.play,
 	align-items: center;
 	justify-content: left;
 }
-16
+
 .ui-panel.expanded .progress-bar:hover{
 	cursor: default;
 }

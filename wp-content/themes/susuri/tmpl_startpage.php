@@ -111,6 +111,8 @@ get_header( 'su' );
 				<div class="box-content ja">
 					<?php echo implode( '', $post_data[ 'diary' ] ); ?>
 				</div>
+				<div class="box-image">
+				</div>	
 			</div><!-- .dash seasons -->			
 			
 		</div><!-- #dashboard -->
