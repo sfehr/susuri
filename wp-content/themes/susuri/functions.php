@@ -313,7 +313,7 @@ add_filter( 'template_include', 'su_choose_template', 99 );
 function su_custom_head() {
 
 	// GOOGLE TAG MANAGER
-/*	echo "
+	echo "
 		<!-- Google Tag Manager -->
 		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -322,7 +322,7 @@ function su_custom_head() {
 		})(window,document,'script','dataLayer','GTM-NXWKC79');</script>
 		<!-- End Google Tag Manager -->		
 	";
-*/	
+	
 	// TYPEFACE (EN)
 //	echo '<link rel="stylesheet" href="https://use.typekit.net/wlv6frg.css">';
 	

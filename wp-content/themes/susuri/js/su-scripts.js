@@ -9,14 +9,12 @@
  * sf_display_dashboard() 				 | Displays the dashboard
  * sf_horizontal_image_slide() 			 | Calculates the iamge with base on the image-ratio
  * sf_showcase_scroll() 			 	 | Handles the scroll event for the showcase section 
- * sf_viwport_handler() 			 	 | adds/removes css classes to the body depending which page section is in viewport 
  * isInViewport()						 | Determines weather a element is in viewport or not
  * sf_intersection_observer() 			 | Handles page sections which are in the viewport
  * sf_video_player()					 | Functions for the video player
  * sf_intl_numbers()					 | Converts numbers into a specifyed international format
  * sf_horizontal_scroll()				 | Handles the vertical scroll momentum and translate it into a horizontal scroll
  * sf_season_navigation()				 | Handles the events for the season navigation
- * sf_intersection_observer()			 | Handles page sections which are in the viewport
  * sf_sort_seasons()					 | Sorts the season articles according to the menu order
  * sf_get_scroll_direction()   			 | Adds evelnt listener to an element to check on scroll direction
  *  
@@ -103,6 +101,7 @@ window.onresize = function() {
  */ 
 function sf_display_dashboard(){
 	
+	// CLICK
 	jQuery( 'body' ).on( 'click', '.ui-link-logo, .ui-link-season', function( e ){
 		
 		e.preventDefault();
@@ -111,6 +110,14 @@ function sf_display_dashboard(){
 		// exit fullscreen video
 		jQuery( 'body' ).removeClass( 'view-fullscreen' );
 		jQuery( '.itm-mov, .ui-panel' ).removeClass( 'expanded' );
+	});
+	
+	// KEY
+	jQuery( 'body' ).on( 'keydown', function( e ){
+
+		if( e.keyCode === 27 && ( ! jQuery( 'body' ).hasClass( 'view-fullscreen' ) ) ){ // exit dashboard by esc key
+			jQuery( 'body' ).removeClass( 'view-dashboard' );
+		} 
 	});
 }
 
@@ -243,7 +250,6 @@ function sf_showcase_scroll(){
 //		var scroll_pos = ( jQuery( '.circle' ).length * circle_w ) - jQuery( this ).scrollTop() - jQuery( window ).height();
 		var scroll_pos = ( jQuery( '.circle' ).length * circle_w ) - jQuery( this ).scrollTop();
 		if( ( scroll_pos <= 0 ) || ( jQuery( this ).scrollTop() < 0 ) ){
-			console.log( 'out' );
 			jQuery( container ).css( 'background-image', 'none' ); // hide background: safai and mobile overscroll fix. avoid image on image
 			return; // early escape
 		}
@@ -527,7 +533,7 @@ function sf_horizontal_scroll(){
 					
 					su_sectionIndex.tween = 'on';
 					tweenProgress = ( ( 1 * ( offsetTop - containerHeight + vh ) ) / ( vh ) ).toFixed( 2 );
-					
+								
 					// prev
 					jQuery( '.season-title .ui-link-season' ).eq( index ).css({
 						'display'  : 'grid',
@@ -595,6 +601,7 @@ function sf_season_navigation(){
 	
 	// add seasnon links into season title
 	seasonTitle.html( seasonLinks );
+//	seasonTitle.html( seasonLinks.eq( 0 ) );
 	
 	// Object Constructor
 	function MenuItem( id, order ,link ) {
@@ -721,13 +728,15 @@ function sf_sort_seasons(){
 		var id = jQuery( this ).attr( 'id' );
 		var order = jQuery( '#dashboard .seasons .' + id ).index();
 		jQuery( ele ).attr( 'data-order', order );
+		
+		jQuery( '.season-title .ui-link-season' ).eq( order ).attr( 'data-loaded', true );
+
 	});
 	
 	// sort according data-order
 	articles.sort( function( a, b ) {
 		return a.dataset.order > b.dataset.order ? 1 : ( a.dataset.order < b.dataset.order ? -1 : 0 );
-	}).appendTo( '#showcase .container-circle' );	
-	
+	}).appendTo( '#showcase .container-circle' );
 }
 
 
@@ -741,7 +750,7 @@ function sf_get_scroll_direction( element ){
 
 	var lastScrollTop = jQuery( element ).scrollTop();
 	
-	jQuery( element ).scroll( function( event ){
+	jQuery( element ).scroll( function(){
 		
 		var st = jQuery( this ).scrollTop();
 		if( st > lastScrollTop ){
