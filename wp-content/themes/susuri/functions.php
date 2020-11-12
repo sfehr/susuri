@@ -20,6 +20,7 @@
  * su_get_player_markup() 				 | Returns the markup of the player 
  * sf_loadmore_ajax_handler() 			 | Ajax handler for loading more posts via ajax call
  * su_custom_img_sizes()				 | adding custom image sizes 
+ * su_big_image_size()					 | increase the big image size 
  * 
  *  
  */
@@ -384,12 +385,13 @@ function su_get_stores( $post_id ) {
 /** SF:
  * Get custom field values: file list images  
  */
-function su_get_images( $meta_key, $class = '', $img_size = '' ){
+function su_get_images( $meta_key, $class = '', $img_size = '', $skip_lazy = '' ){
 	
 	// VARS
 	$data = '';
 	$images = array();
 	$class = !empty( $class ) ? ' ' . $class : '' ;
+	$skip_lazy = ( $skip_lazy === true ) ? ' ' . 'skip-lazy' : '' ;
 	
 	// GET FIELD
 	$files = get_post_meta( get_the_ID(), $meta_key, 1 );
@@ -397,7 +399,7 @@ function su_get_images( $meta_key, $class = '', $img_size = '' ){
 	// LOOP
 	if( !empty( $files ) ){	
 		foreach ( (array) $files as $attachment_id => $attachment_url ) {
-			$img = wp_get_attachment_image( $attachment_id, $img_size );
+			$img = wp_get_attachment_image( $attachment_id, $img_size, '', ["class" => $skip_lazy ] );
 			$img_src = wp_get_attachment_image_src( $attachment_id );
 			$orientation = ( $img_src[ 1 ] <= $img_src[ 2 ] ) ? 'portrait' : 'landscape'; // 1->width, 2->height
 			$images[] = '<div class="entry-media itm-img ' . $orientation . $class . '">' . $img . '</div>';
@@ -478,19 +480,16 @@ function su_get_player_markup() {
  */
 function sf_loadmore_ajax_handler() {
 	
-	// prepare our arguments for the query
-//	$args = json_decode( stripslashes( $_POST[ 'query' ] ), true );
-	
 	// ARGS
 	if( isset( $_POST[ 'p' ] ) && ! empty( $_POST[ 'p' ] ) ){	
 		// selective post query
-		$args[ 'p' ] = ( isset( $_POST[ 'p' ] ) ) ? $_POST[ 'p' ] : ''; 
+//		$args[ 'p' ] = ( isset( $_POST[ 'p' ] ) ) ? $_POST[ 'p' ] : ''; 
 	}
 	else{
 		// query next page
-		$args[ 'paged' ] = ( isset( $_POST[ 'page' ] ) ) ? $_POST[ 'page' ] + 1 : '';	
+//		$args[ 'paged' ] = ( isset( $_POST[ 'page' ] ) ) ? $_POST[ 'page' ] + 1 : '';	
 	}
-	$args[ 'posts_per_page' ] = 1;
+	$args[ 'posts_per_page' ] = -1;
 	$args[ 'post_status' ] = 'publish';
 	$args[ 'post_type' ] = array ( 'season' );
 	
@@ -528,3 +527,15 @@ function su_custom_img_sizes() {
 	add_image_size( 'su-super-large', 3000, 3000 );
 }
 add_action( 'after_setup_theme', 'su_custom_img_sizes' );
+
+
+
+/** SF:
+ * increase the big image size
+ */
+function su_big_image_size( $threshold ) {
+    return 3000; // new threshold
+}
+add_filter( 'big_image_size_threshold', 'su_big_image_size', 100, 1 );
+
+

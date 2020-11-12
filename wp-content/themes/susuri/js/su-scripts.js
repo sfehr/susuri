@@ -734,9 +734,13 @@ function sf_sort_seasons(){
 	});
 	
 	// sort according data-order
-	articles.sort( function( a, b ) {
-		return a.dataset.order > b.dataset.order ? 1 : ( a.dataset.order < b.dataset.order ? -1 : 0 );
-	}).appendTo( '#showcase .container-circle' );
+	const collator = new Intl.Collator( 'en', { 
+		numeric: true, 
+		sensitivity: 'base' 
+	});
+	
+	articles.sort( ( a, b ) => collator.compare( a.dataset.order, b.dataset.order ) )
+	.appendTo( '#showcase .container-circle' );
 }
 
 

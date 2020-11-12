@@ -37,8 +37,8 @@ get_header( 'su' );
 			// get showcase and season images of the first season post only
 			if( ( get_post_type() == 'season' ) && $initial ){
 				$initial = false;
-				$post_data[ 'showcase' ] = su_get_images( 'su_showcase_image', 'itm-showcase' ); // meta key, class, img size
-				$post_data[ 'season_img' ] = su_get_images( 'su_image_image' ); 
+				$post_data[ 'showcase' ] = su_get_images( 'su_showcase_image', 'itm-showcase', '', true ); // meta key, class, img size, skip lazy
+				$post_data[ 'season_img' ] = su_get_images( 'su_image_image', '', '', false ); 
 			}
 
 		endwhile; // End of the loop.

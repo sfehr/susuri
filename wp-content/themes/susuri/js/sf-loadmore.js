@@ -29,7 +29,7 @@ var canBeLoaded = true, // this param allows to initiate the AJAX call only if n
  *
  */ 
 jQuery( document ).ready( 
-	sf_loadmore()
+//	sf_loadmore()
 );
 
 
