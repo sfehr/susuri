@@ -1,0 +1,63 @@
+/**
+ *
+ * CSS for susuri shop
+ *
+**/
+
+body{
+    background: antiquewhite;
+}
+
+/* storefront grid */
+#dropzone-payload .wps-items-wrapper{
+    max-width: unset;
+    padding: 0 30px;
+}
+
+#dropzone-payload .wps-items{
+    grid-template-columns: repeat( auto-fill, minmax( 20vw, 1fr ) );
+    grid-gap: 50px 10px;
+}
+
+
+/* storefront grid item */
+#dropzone-payload .wps-item{
+    border: 1px solid blue;
+    max-width: 30vw;
+    max-height: 30vw;
+}
+
+#dropzone-payload .wps-component-products-title,
+#dropzone-payload .wps-component-products-pricing
+{
+    display: none;
+}
+
+#dropzone-payload .wps-component-products-images,
+#dropzone-payload .wps-gallery-featured-wrapper,
+#dropzone-payload .wps-product-image-wrapper,
+#dropzone-payload .wps-link-modal
+{
+    max-height: 100%;
+}
+
+#dropzone-payload .wps-component-products-images{
+    display: flex;
+    align-self: center;
+    margin: 0;
+}
+
+#dropzone-payload .wps-product-image-wrapper{
+    justify-content: center;
+}
+
+#dropzone-payload .wps-product-image{
+    max-width: 90%;
+    max-height: 30vw;
+    justify-self: center;
+}
+
+#dropzone-payload .wps-link-modal{
+    display: flex;
+    justify-content: center;
+}

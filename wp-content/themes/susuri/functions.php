@@ -189,6 +189,11 @@ function susuri_scripts() {
 	);			
 	wp_enqueue_script( 'sf-loadmore-js', get_template_directory_uri() . '/js/sf-loadmore.js', array( 'jquery' ), _S_VERSION, true );
 	wp_localize_script( 'sf-loadmore-js', 'sf_loadmore_params', $sf_loadmore_params );
+
+	// Online Shop
+	if( is_page( 'Shop' ) ) {
+		wp_enqueue_style( 'su-onlineshop-css', get_template_directory_uri() . '/css/su-shop.css', array(), _S_VERSION );
+	}	
 	
 }
 add_action( 'wp_enqueue_scripts', 'susuri_scripts' );
