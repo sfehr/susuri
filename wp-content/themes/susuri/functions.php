@@ -193,6 +193,7 @@ function susuri_scripts() {
 	// Online Shop
 	if( is_page( 'Shop' ) ) {
 		wp_enqueue_style( 'su-onlineshop-css', get_template_directory_uri() . '/css/su-shop.css', array(), _S_VERSION );
+		wp_enqueue_script( 'su-onlineshop-js', get_template_directory_uri() . '/js/su-shop.js', array( 'shopwp-public' ), _S_VERSION, true );
 	}	
 	
 }
