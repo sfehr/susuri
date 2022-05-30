@@ -86,7 +86,7 @@ body[data-show-options="true"] #su-filter span:after {
     left: 16px;
     content: '';
     height: 30px;
-    width: 1.5px;
+    width: 1px;
     background-color: black;
 }
 body[data-show-options="true"] #su-filter span:before {
@@ -130,7 +130,7 @@ body[data-show-options="true"] #su-filter span:after {
 {
 
     max-height: 100vh;
-    max-width: unset;
+    /* max-width: unset; */
 }
 
 /* atlas */
@@ -224,6 +224,7 @@ body[data-show-options="true"] #su-filter span:after {
 #dropzone-payload .wps-items-wrapper{
     max-width: unset;
     padding: 0 30px;
+    min-height: 100vh;
 }
 
 #dropzone-payload .wps-items{
@@ -334,83 +335,22 @@ body[data-show-options="true"] #su-filter span:after {
 }
 
 
-
 /* MODAL */
-.ReactModal__Content--after-open{
-	inset: unset !important;
-    border: unset !important; 
-    background: unset !important; 
-    overflow: unset !important; 
-    border-radius: none !important; 
-    outline: unset !important;
-    padding: unset !important;
-    max-width: unset !important;
-    width: unset !important; 
-    margin: 0px auto; 
-    height: unset !important;
-    opacity: 1; 
-    z-index: 5 !important;
-    box-shadow: unset !important;
-    transform: unset !important; 
-    transition: all 0.2s ease 0s;        
-    
-    border-radius: 0 !important;
-    width: 80vw !important;
-    top: 0 !important;
-    left: 0 !important;
-   	max-width: unset !important;
-    height: 100vh!important;
-    background: white !important;    
-}
-
 .wps-modal,
 .wps-modal-inner
 {
     display: grid;
 }
 
-.wps-modal-inner{
-    margin: 10px;
-}
-
-.wps-modal-inner .wps-items-wrapper{
-    width: 100%;
-    max-width: unset;
-}
-
-.wps-modal-row{
-    top: 0;
-    left: 0;
-    width: 100%;
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    height: calc(100vh - 20px);
-    grid-gap: 10px;
-}
-
-.wps-modal-row > div{
-    width: 100% !important;
-    padding: unset !important;
-}
-
 /* image */
-/*
-.wps-modal-row > div:nth-child( 1 ){
-}
-*/
 .wps-modal-row .wps-component-products-images{
     position: relative;
     min-height: 100%;
+    
 }
 
 .wps-modal-row .wps-component-products-images .wps-gallery-featured-wrapper .wps-product-image{
     max-height: calc(100vh - 20px);
-}
-
-.wps-modal-row .wps-component-products-images .wps-thumbnails-wrapper{
-    position: absolute;
-    left: 5px;
-    bottom: 0;
 }
 
 .wps-thumbnails-wrapper [data-wps-is-active="true"] .wps-product-image,
@@ -418,6 +358,7 @@ body[data-show-options="true"] #su-filter span:after {
 {
     outline: rgba(0, 0, 0, 1) solid 1px;
 }
+
 
 /* information */
 .wps-modal-row > div:nth-child( 2 ){
@@ -591,22 +532,151 @@ body[data-show-options="true"] #su-filter span:after {
     height: 32px;
     opacity: 1;
     font-size: 0 !important;
-  }
-  .wps-btn-close span:hover {
+}
+.wps-btn-close span:hover {
     opacity: 1;
-  }
-  .wps-btn-close span:before,
-  .wps-btn-close span:after {
+}
+.wps-btn-close span:before,
+.wps-btn-close span:after {
     position: absolute;
     left: 15px;
     content: ' ';
     height: 40px;
     width: 1px;
     background-color: black;
-  }
-  .wps-btn-close span:before {
+}
+.wps-btn-close span:before {
     transform: rotate(45deg);
-  }
-  .wps-btn-close span:after {
+}
+.wps-btn-close span:after {
     transform: rotate(-45deg);
-  }
+}
+.wps-cart svg{
+    opacity: 0;
+}
+
+
+@media only screen and (min-width: 800px){
+    
+    /* MODAL */
+    .ReactModal__Content--after-open{
+        inset: unset !important;
+        border: unset !important; 
+        background: unset !important; 
+        overflow-x: hidden !important; 
+        overflow-y: scroll !important; 
+        border-radius: none !important; 
+        outline: unset !important;
+        padding: unset !important;
+        max-width: unset !important;
+        width: unset !important; 
+        margin: 0px auto; 
+        height: unset !important;
+        opacity: 1; 
+        z-index: 5 !important;
+        box-shadow: unset !important;
+        transform: unset !important; 
+        transition: all 0.2s ease 0s;        
+
+        border-radius: 0 !important;
+        width: 80vw !important;
+        top: 0 !important;
+        left: 0 !important;
+        max-width: unset !important;
+        height: 100vh!important;
+        background: white !important;    
+    }
+    
+    .wps-modal-inner .wps-items-wrapper{
+        width: 100%;
+        max-width: unset;
+    }
+
+    .wps-modal-row{
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        height: calc(100vh - 20px);
+        grid-gap: 10px;
+    }
+    
+    .wps-modal-inner{
+        margin: 10px;
+        padding: 5px;
+    }
+
+
+    .wps-modal-row > div{
+        width: 100% !important;
+        padding: unset !important;
+    }
+    
+
+    
+    
+}
+
+
+@media only screen and (max-width: 800px){
+
+    #dropzone-options h3,
+    #dropzone-payload .wps-component-products-title h2,
+    [data-wpshopify-component-type="products"] .wps-component-products-title h2,
+    [data-wpshopify-component-type="products"] .wps-component-products-pricing span,
+    [data-wpshopify-component-type="products"] .wps-component-products-pricing,
+    .wps-product-individual-price
+    {
+        font-size: 15px !important;
+    }    
+
+
+    [data-wpshopify-component-type="products"] .wps-items-wrapper{
+        padding: unset;
+    }
+    
+    [data-wpshopify-component-type="products"] .wps-product-image-wrapper {
+        justify-content: center;
+    }
+
+
+    #dropzone-payload .wps-items-wrapper{
+        padding: 0px;
+        margin: 0 10px;
+    }    
+
+    #dropzone-payload .wps-items{
+        grid-template-columns: repeat( auto-fill, minmax( 40vw, 1fr ) );
+        grid-template-rows: repeat( auto-fill, minmax( 50vh, 1fr ) );
+        grid-gap: 90px 10px;
+    }
+    
+    #dropzone-payload .wps-item{
+        max-width: 50vw;
+        max-height: 90vh;
+    }
+    
+    #dropzone-payload .wps-product-image{
+        max-width: 90%;
+        max-height: 60vh;
+    }
+    
+    #dropzone-payload .wps-link-modal {
+        justify-content: center;
+    }
+
+
+    /* MODAL */
+    .ReactModal__Content--after-open{
+        padding: 10px !important;
+
+        border-radius: 0 !important;
+        top: 0px !important;
+
+        right: 0 !important;
+        height: 90vh !important;
+        background: white !important;
+    }    
+
+}
