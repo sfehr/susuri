@@ -628,7 +628,7 @@ body[data-show-options="true"] #su-filter span:after {
     [data-wpshopify-component-type="products"] .wps-component-products-pricing,
     .wps-product-individual-price
     {
-        font-size: 15px !important;
+        font-size: 18px !important;
     }    
 
 
@@ -670,13 +670,32 @@ body[data-show-options="true"] #su-filter span:after {
     /* MODAL */
     .ReactModal__Content--after-open{
         padding: 10px !important;
-
         border-radius: 0 !important;
         top: 0px !important;
-
         right: 0 !important;
-        height: 90vh !important;
         background: white !important;
+    }
+
+    .wps-modal-row .wps-component-products-pricing {
+        justify-self: unset;
+    }    
+
+    .wps-modal-row .wps-component-products-buy-button {
+        width: auto;
+    }
+    
+    .wps-modal-row .wps-component-products-buy-button {
+        align-self: unset;
+        justify-self: unset;
+    }
+
+	.wps-modal-row .wps-component-products-buy-button svg {
+        transform: translate( -30px, 80px );
+    }
+
+    /* FILTER OPTIONS */
+    #dropzone-options{
+        padding: 60px 100px 60px 10px;
     }    
 
 }
