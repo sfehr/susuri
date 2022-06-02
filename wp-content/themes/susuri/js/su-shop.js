@@ -26,7 +26,7 @@ const showStorefrontOptions = () => {
 }
 
 
-
+/* scroll to storefront when filter is selected */
 const filterOptionsInteraction = () => {
 
     const filterInputList = document.querySelectorAll( '.wps-input-label' )
@@ -60,3 +60,15 @@ wp.hooks.addAction('on.beforePayloadUpdate', 'shopwp', function ( itemsState ) {
 
     filterOptionsInteraction()
 })
+
+
+/* exclude options from collections */
+wp.hooks.addFilter(
+    'storefront.availableCollections',
+    'shopwp',
+    function ( collections ) {
+        return collections.filter( collection => 
+            collection.label !== 'Top' && collection.label !== 'Featured'
+        )
+    }
+)
