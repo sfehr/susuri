@@ -473,6 +473,8 @@ function sf_intl_numbers( $locale ) {
 		
 		var date = jQuery( el ).text();
 		var dateNumbers = date.match( /\d+/gi );
+
+		if( dateNumbers == null ){ return }
 		
 		dateNumbers.forEach( function( number, index ){
 			
