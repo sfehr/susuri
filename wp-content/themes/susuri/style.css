@@ -63,6 +63,7 @@ Nicolas Gallagher and Jonathan Neal https://necolas.github.io/normalize.css/
 # Showcase
 # Seasons
 # UI
+# GENERAL
 # MEDIA QUERIES
 # CAPABILITY QUERIES
 --------------------------------------------------------------*/
@@ -1809,6 +1810,45 @@ body:not(.player-playing) .ui-player.play,
 	cursor: pointer;
 }
 
+
+/*--------------------------------------------------------------
+# GENERAL
+--------------------------------------------------------------*/
+
+.page-template-tmpl_general main{
+	/* margin: auto; */
+	max-width: 900px;
+	min-height: calc( 100vh - 100px );
+}
+
+.page-template-tmpl_general main,
+.shop-footer-navi
+{
+	padding: 0 30px;
+}
+
+.site-footer{
+    position: sticky;
+    bottom: 20px;
+    mix-blend-mode: difference;
+}
+
+.site-footer .shop-footer-navi .menu{
+	display: flex;
+	gap: 20px;
+	list-style: none;
+	margin: 0;
+	border-top: 1px solid white;
+	padding-top: 5px;
+}
+
+.site-footer .shop-footer-navi .menu .menu-item a{
+	color: white;
+}
+
+.site-footer .shop-footer-navi .menu .menu-item.current_page_item a{
+	text-decoration: underline;
+}
 
 /*--------------------------------------------------------------
 # MEDIA QUERIES

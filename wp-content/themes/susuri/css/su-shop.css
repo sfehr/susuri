@@ -16,10 +16,7 @@
     margin-bottom: 200px;
 }
 
-
 /* SHOP NAVI */
-
-
 #su-shop-navi{
     z-index: 10;
  	position: fixed;
@@ -359,8 +356,6 @@ body[data-show-options="true"] #su-filter span:after {
 /* image */
 .wps-modal-row .wps-component-products-images{
     position: relative;
-    min-height: 100%;
-    
 }
 .wps-modal-row .wps-component-products-images .slick-list{
     height: auto;
@@ -368,7 +363,7 @@ body[data-show-options="true"] #su-filter span:after {
 
 .wps-modal-row .wps-component-products-images .slick-list img{
     max-width: 100%;
-    max-height: unset;
+    max-height: 1000px;
 }
 
 .wps-modal-row .wps-component-products-images .wps-gallery-featured-wrapper .wps-product-image{
@@ -386,12 +381,8 @@ body[data-show-options="true"] #su-filter span:after {
 .wps-modal-row > div:nth-child( 2 ){
     display: grid;
     grid-template-columns: calc(50% - 5px) calc(50% - 5px);
-    grid-template-rows: repeat( 4, 1fr );
-    grid-template-areas: "title title"
-                         "desc  desc"
-                         "desc  desc"
-                         "price  price"        
-                         "buy  buy";
+    grid-template-rows: 30px 60px 1fr 1fr;
+    grid-template-areas: "title title" "price price" "desc desc" "desc desc" "buy buy" !important;
     grid-gap: 10px;
 }
 
@@ -419,13 +410,7 @@ body[data-show-options="true"] #su-filter span:after {
 .wps-modal-row .wps-component-products-pricing
 {
     grid-area: price;
-    display: flex;
-    position: relative;
-    align-self: end;
-    justify-self: end;
-    width: calc( 50% - 5px );
-    min-height: 50px;
-    
+    display: flex;    
 }
 
 .wps-modal-row .wps-component-products-pricing span{
@@ -597,14 +582,23 @@ body[data-show-options="true"] #su-filter span:after {
     display: none;
 }
 
-
-.wps-component-products-description *{
+.wps-component-products-description,
+.wps-component-products-description *
+{
     color: black !important;
+    font-size: var(--shop-type-size-m) !important;
 }
 
 /* hide yopto message */
 .ReactModal__Content--after-open .wps-modal-row [class*="noticeStyles-Notice"]{
     display: none !important;
+}
+
+.wps-cart-lineitem-title-content{
+    display: block;
+    max-width: 180px !important;
+    word-wrap: break-word;
+    word-break: break-all;
 }
 
 
@@ -638,8 +632,15 @@ body[data-show-options="true"] #su-filter span:after {
         height: 100vh!important;
         background: white !important;    
 		*/
+        width: 80vw !important;
+        max-width: unset !important;
+        height: 90vh!important;
         padding: 10px !important;
         border-radius: 0 !important;
+    }
+
+    .wps-items-wrapper{
+        max-width: unset !important;
     }
 
     

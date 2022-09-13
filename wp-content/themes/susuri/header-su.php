@@ -9,7 +9,9 @@
  * @package susuri
  */
 
+$home_link = is_home() ? '#' : '/';
 ?>
+
 <!doctype html>
 <html <?php language_attributes(); ?>>
 <head>
@@ -28,7 +30,7 @@
 	<header id="masthead" class="site-header">
 		
 		<div class="site-logo">
-			<a href="#" class="ui-link-logo">
+			<a href="<?php echo esc_url( $home_link ) ?>" class="ui-link-logo">
 				<svg version="1.1" id="susuri" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 					 viewBox="0 0 370.6 64.3" style="enable-background:new 0 0 370.6 64.3;" xml:space="preserve">
 				<g>
@@ -52,7 +54,7 @@
 		</div><!-- .site-logo -->
 		
 		<div class="season-title">
-			<div><a href="#" class="ui-link-season">...</a></div>
+			<div><a href="#" class="ui-link-season"></a></div>
 		</div><!-- .season-title -->
 		
 	</header><!-- #masthead -->

@@ -21,6 +21,7 @@
  * sf_loadmore_ajax_handler() 			 | Ajax handler for loading more posts via ajax call
  * su_custom_img_sizes()				 | adding custom image sizes 
  * su_big_image_size()					 | increase the big image size 
+ * su_add_shop_footer_menu() 			 | adding custom footer menu for shop
  * 
  *  
  */
@@ -167,15 +168,17 @@ function susuri_scripts() {
 		wp_enqueue_script( 'comment-reply' );
 	}
 	
-	// vimeo player api
-	wp_enqueue_script( 'player-js', 'https://player.vimeo.com/api/player.js', array(), _S_VERSION, true );
-	
-	// Parameters for JS
-	$su_params = array(
-		'movie_url' => get_post_meta( su_get_ID_by_slug( 'dashboard' ), 'su_movie_oembed', true )
-	);	
-	wp_enqueue_script( 'su-scripts', get_template_directory_uri() . '/js/su-scripts.js', array( 'jquery' ), _S_VERSION, true );
-	wp_localize_script( 'su-scripts', 'su_params', $su_params );
+	if( is_home() ){
+		// vimeo player api
+		wp_enqueue_script( 'player-js', 'https://player.vimeo.com/api/player.js', array(), _S_VERSION, true );
+		
+		// Parameters for JS
+		$su_params = array(
+			'movie_url' => get_post_meta( su_get_ID_by_slug( 'dashboard' ), 'su_movie_oembed', true )
+		);	
+		wp_enqueue_script( 'su-scripts', get_template_directory_uri() . '/js/su-scripts.js', array( 'jquery' ), _S_VERSION, true );
+		wp_localize_script( 'su-scripts', 'su_params', $su_params );
+	}
 	
 	// SF Loadmore
 	global $wp_query; 
@@ -543,5 +546,15 @@ function su_big_image_size( $threshold ) {
     return 3000; // new threshold
 }
 add_filter( 'big_image_size_threshold', 'su_big_image_size', 100, 1 );
+
+
+
+/** SF:
+ * adding custom footer menu for shop
+ */
+function su_add_shop_footer_menu() {
+	register_nav_menu( 'su-shop-footer-menu' ,__( 'Shop Footer Menu' ) );
+}
+add_action( 'init', 'su_add_shop_footer_menu' );
 
 
